@@ -4,10 +4,8 @@ import cv2
 import datetime
 import time
 import PySimpleGUI as sg
-import tkinter as Tk
 import numpy as np
 from matplotlib import pyplot as plt
-from PIL import ImageFont, ImageDraw, Image
 
 sys.path.append(os.path.abspath(".."))
 from Data import cron
@@ -74,7 +72,7 @@ def main():
     ##### CONST #####
     camera_id = 0
     delay = 1
-    window_name = "Smile Detecter😃"
+    window_name = "Smile Detecter 😃"
 
     ##### Detect Face( and SMILE ) #####
     face_cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
@@ -85,10 +83,10 @@ def main():
 
     ##### MAIN #####
     # initialize the file which will be added data.
-    with open(os.path.dirname(os.path.abspath(__file__)) + "/Data/today.csv", "w") as f:
-        now = datetime.datetime.now()
-        now = now.strftime("%Y/%m/%d %H:%M:%S")
-        f.write(f"{now},2.0\n")
+    #with open(os.path.dirname(os.path.abspath(__file__)) + "/Data/today.csv", "w") as f:
+    #    now = datetime.datetime.now()
+    #    now = now.strftime("%Y/%m/%d %H:%M:%S")
+    #    f.write(f"{now},2.0\n")
 
     camera = cv2.VideoCapture(camera_id)
     camera.set(4, 1080)
@@ -126,6 +124,7 @@ def main():
 
                 # store today's data to "today.csv"
                 # if the data(date) already exists, won't store it.
+                """
                 with open(os.path.dirname(os.path.abspath(__file__)) + "/Data/today.csv", "r+") as f:
                     now = datetime.datetime.now()
                     now = now.strftime("%Y/%m/%d %H:%M:%S")
@@ -137,7 +136,7 @@ def main():
                         pass
                     else:
                         f.write(f"{now},{smile_value}\n")
-
+                """
         # ----------------- End of Image Processing ----------------- #
 
         imgbytes = cv2.imencode('.png', image_)[1].tobytes()
