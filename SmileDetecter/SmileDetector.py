@@ -40,7 +40,7 @@ class Observer(object):
 
 def main():
     frame1 = sg.Frame(layout=[[sg.Image(filename="", key="_IMAGE_")]],
-                                title="Smile Detecter",
+                                title="Smile Detector",
                                 title_color="white",
                                 font=("Ariel", 50),
                                 relief=sg.RELIEF_SUNKEN,
@@ -56,7 +56,7 @@ def main():
         sg.Text("", size=(20,3), font="Courier 40", key="_SMILE_")],
         [sg.Button("Quit", size=(10,2), font="Courier 20", )]
     ]
-    win = sg.Window("Smile Detecter 😃", layout,
+    win = sg.Window("Smile Detector", layout,
                                         location=(30,30),
                                         alpha_channel=1.0,
                                         no_titlebar=False,
@@ -72,14 +72,12 @@ def main():
     ##### CONST #####
     camera_id = 0
     delay = 1
-    window_name = "Smile Detecter 😃"
+    window_name = "Smile Detector"
 
     ##### Detect Face( and SMILE ) #####
-    face_cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    smile_cascade_path = cv2.data.haarcascades + "haarcascade_smile.xml"
 
-    face_cascade = cv2.CascadeClassifier(face_cascade_path)
-    smile_cascade = cv2.CascadeClassifier(smile_cascade_path)
+    face_cascade = cv2.CascadeClassifier("/Users/kippeiwatanabe/Desktop/smile_detecter/SmileDetecter/Data/haarcascade_frontalface_default.xml")
+    smile_cascade = cv2.CascadeClassifier("/Users/kippeiwatanabe/Desktop/smile_detecter/SmileDetecter/Data/smilecascade.xml")
 
     ##### MAIN #####
     # initialize the file which will be added data.

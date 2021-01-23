@@ -7,10 +7,23 @@ Usage:
 
 from setuptools import setup
 
-APP = ['camera.py']
+APP = ['SmileDetector.py']
 DATA_FILES = []
-OPTIONS = {}
-
+OPTIONS = {'argv_emulation': True,
+           'iconfile': '/Users/kippeiwatanabe/Desktop/smile_detecter/SmileDetecter/DaftPunk.icns',
+           'plist':{
+               'CFBundleName': "Smile Detector",
+                'CFBundleDisplayName': "Smile Detector",
+                'CFBundleGetInfoString': "Making Smile Detector",
+                'CFBundleIdentifier': "",
+                'CFBundleVersion': "0.1.0",
+                'CFBundleShortVersionString': "0.1.0",
+                'NSHumanReadableCopyright': "Copyright © 2020, S8s8Max, All Rights Reserved",
+                'PyRuntimeLocations': [
+                    '/usr/local/Cellar/python@3.8/3.8.6_2/Frameworks/Python.framework/Versions/3.8/lib/libpython3.8.dylib'
+               ]
+           },
+        }
 setup(
     app=APP,
     data_files=DATA_FILES,
