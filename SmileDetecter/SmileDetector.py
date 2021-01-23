@@ -7,9 +7,6 @@ import PySimpleGUI as sg
 import numpy as np
 from matplotlib import pyplot as plt
 
-sys.path.append(os.path.abspath(".."))
-from Data import cron
-from Data import summaryData
 
 ###### GUI CONST ######
 sg.theme("Black")
