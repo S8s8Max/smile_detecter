@@ -36,6 +36,7 @@ class Observer(object):
 
 
 def main():
+
     frame1 = sg.Frame(layout=[[sg.Image(filename="", key="_IMAGE_")]],
                                 title="Smile Detector",
                                 title_color="white",
@@ -49,12 +50,22 @@ def main():
                                 key="_GRAPH1_")
     layout = [
         [frame1, Graph1],
-        [sg.Text("YOUR SMILE : ", size=(20,3), font="Courier 40",),
-        sg.Text("", size=(20,3), font="Courier 40", key="_SMILE_")],
-        [sg.Text("TODAY'S MAX : ", size=(20,3), font="Courier 40"),
-         sg.Text("", size=(20,3), font="Courier 40", key="_MAX_SMILE_")],
-        [sg.Button("Quit", size=(10,2), font="Courier 20", ),
-         sg.Button("Report", size=(10,2), font="Courier 20", )]
+        [sg.Text("Date    : ", size=(15,1), font="Courier 30", key="_TODAY_")],
+        [sg.Text("YOUR SMILE : ", size=(20,1), font="Courier 30"),
+        sg.Text("", size=(20,1), font="Courier 40", key="_SMILE_")],
+        [sg.Text("TODAY'S MAX : ", size=(20,1), font="Courier 30"),
+         sg.Text("", size=(20,1), font="Courier 40", key="_MAX_SMILE_")],
+        [sg.Text("Average : ", size=(20,1), font="Courier 30"),
+         sg.Text("", size=(20,1), font="Courier 30", key="_AVERAGE_SMILE_")],
+        [sg.Button("Quit", size=(10,2), font="Courier 20"),
+         sg.Button("Report", size=(10,2), font="Courier 20")]
+    ]
+    report_layout = [
+        [sg.Text("Your Report", size=(30,3), font="Courier 40")],
+        [sg.Text("Max     : ", size=(18,1), font="Courier 20"),
+         sg.Text("", size=(18,1), font="Courier 20", key="_MAX_REPORT_")],
+        [sg.Button("Quit", size=(10,2), font="Courier 20"),
+         sg.Button("Save", size=(10,2), font="Courier 20", key="_SAVE_")]
     ]
     win = sg.Window("Smile Detector", layout,
                                         location=(30,30),
@@ -66,9 +77,11 @@ def main():
                                         element_padding=(0,0),
                                         border_depth=0,
                                         margins=(1,1),
-                                        pad=(1,1),
                                         finalize=True)
     graph = Observer(win["_GRAPH1_"], 0, COLOR)
+
+    today = datetime.datetime.today()
+    win["_TODAY_"].update(today)
 
     ##### CONST #####
     camera_id = 0
@@ -91,12 +104,16 @@ def main():
     camera.set(4, 1080)
 
     max_smile = 0
+
     stage = 0
-    
+    total_smile = 0
+
     if not camera.isOpened():
         sys.exit()
 
     while True:
+        stage += 1
+
         event, values = win.read(timeout=1)
         if event in (None, "Quit"):
             break
@@ -139,7 +156,29 @@ def main():
                     else:
                         f.write(f"{now},{smile_value}\n")
                 """
+        total_smile += smile_value
+
         # ----------------- End of Image Processing ----------------- #
+        def save_file(filename: str):
+            """ Save file instantly if already open: otherwise use "Save as" popup. """
+            if filename not in (None, ""):
+                with open(filename, "w") as f:
+                    f.write(values.get("_BODY_"))
+                win["_INFO_"].update(value=filename)
+            else:
+                save_file_as()
+
+        def save_file_as() -> str:
+            " Save new file or save existing file with another name "
+            try:
+                filename: str = sg.popup_get_file("Save File", save_as=True, no_window=True)
+            except:
+                return
+            if filename not in (None, "") and not isinstance(filename, tuple):
+                with open(filename, "w") as f:
+                    f.write(values.get("_BODY_"))
+                win["_INFO_"].update(value=filename)
+                return filename
 
         imgbytes = cv2.imencode('.png', image_)[1].tobytes()
         win["_IMAGE_"].update(data=imgbytes)
@@ -149,7 +188,17 @@ def main():
             win["_MAX_SMILE_"].update(max_smile)
         win["_SMILE_"].update(str(smile_value))
 
-        graph.graph_percentage_abs(smile_value * 40)
+        win["_AVERAGE_SMILE_"].update(total_smile/stage)
+
+        # Drawing a graph
+        if smile_value == 0:
+            smile_value = 0.01
+            graph.graph_percentage_abs(smile_value * 40)
+        else:
+            graph.graph_percentage_abs(smile_value * 40)
+
+        if event == "Report":
+            sg.popup_scrolled("Smile Report \n\nAverage : {}\nMax : {}\nDate : {}\n".format(round(total_smile/stage,3), win["_MAX_SMILE_"].get(), today.date()), auto_close=False)
 
     win.close()
 
