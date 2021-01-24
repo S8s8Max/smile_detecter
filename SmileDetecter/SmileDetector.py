@@ -39,7 +39,7 @@ def main():
     frame1 = sg.Frame(layout=[[sg.Image(filename="", key="_IMAGE_")]],
                                 title="Smile Detector",
                                 title_color="white",
-                                font=("Ariel", 50),
+                                font=("Courier", 50),
                                 relief=sg.RELIEF_SUNKEN,
                                 element_justification="left")
     Graph1 = sg.Graph((GRAPH_WIDTH, GRAPH_HEIGHT),
@@ -51,7 +51,10 @@ def main():
         [frame1, Graph1],
         [sg.Text("YOUR SMILE : ", size=(20,3), font="Courier 40",),
         sg.Text("", size=(20,3), font="Courier 40", key="_SMILE_")],
-        [sg.Button("Quit", size=(10,2), font="Courier 20", )]
+        [sg.Text("TODAY'S MAX : ", size=(20,3), font="Courier 40"),
+         sg.Text("", size=(20,3), font="Courier 40", key="_MAX_SMILE_")],
+        [sg.Button("Quit", size=(10,2), font="Courier 20", ),
+         sg.Button("Report", size=(10,2), font="Courier 20", )]
     ]
     win = sg.Window("Smile Detector", layout,
                                         location=(30,30),
@@ -63,6 +66,7 @@ def main():
                                         element_padding=(0,0),
                                         border_depth=0,
                                         margins=(1,1),
+                                        pad=(1,1),
                                         finalize=True)
     graph = Observer(win["_GRAPH1_"], 0, COLOR)
 
@@ -86,6 +90,9 @@ def main():
     camera = cv2.VideoCapture(camera_id)
     camera.set(4, 1080)
 
+    max_smile = 0
+    stage = 0
+    
     if not camera.isOpened():
         sys.exit()
 
@@ -104,6 +111,7 @@ def main():
         gray = cv2.cvtColor(image_, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
         smile_value = 0
+
         for (x, y, w, h) in faces:
             cv2.rectangle(image_, (x, y), (x + w, y + h), (255, 0, 0), 2)
             face = image_[y:y + h, x:x + w]
@@ -116,7 +124,6 @@ def main():
                 # - Definition of SMILE - #
                 # You are smile when the aspect ratio is higher than 2.0.
                 smile_value = abs(abs(sw - sx) / abs(sh - sy))
-
                 # store today's data to "today.csv"
                 # if the data(date) already exists, won't store it.
                 """
@@ -136,11 +143,13 @@ def main():
 
         imgbytes = cv2.imencode('.png', image_)[1].tobytes()
         win["_IMAGE_"].update(data=imgbytes)
-        if smile_value > 1.6:
-            win["_SMILE_"].update(str(round(smile_value, 3)))
+
+        if smile_value > max_smile:
+            max_smile = smile_value
+            win["_MAX_SMILE_"].update(max_smile)
         win["_SMILE_"].update(str(smile_value))
 
-        graph.graph_percentage_abs(smile_value*50)
+        graph.graph_percentage_abs(smile_value * 40)
 
     win.close()
 
